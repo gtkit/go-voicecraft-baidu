@@ -1,0 +1,19 @@
+version: "2"
+
+linters:
+  # 使用 golangci-lint v2 的标准默认 linter 集合
+  # （errcheck / govet / ineffassign / staticcheck / unused）。
+  default: standard
+  exclusions:
+    rules:
+      # 仅 Example 代码放宽 errcheck：GoDoc 示例中 `defer f.Close()`、`f.Write(data)`
+      # 是惯用写法，用 `_ =` 包裹会弄脏面向文档的示例。
+      # 其余 *_test.go 不放宽，避免真实漏处理错误被掩盖。
+      - path: example_test\.go
+        linters:
+          - errcheck
+      # 测试中故意传 nil context 以验证 nil-context 保护逻辑。
+      - path: _test\.go
+        text: "SA1012"
+        linters:
+          - staticcheck
