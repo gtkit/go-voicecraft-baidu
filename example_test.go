@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"os"
+
+	voicraftbaidu "github.com/gtkit/voicraft-baidu"
 )
 
 // ExampleNew_withClientCredentials 演示使用 client_id + client_secret 创建客户端。
