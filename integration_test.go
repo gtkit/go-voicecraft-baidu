@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 import (
 	"context"
@@ -21,7 +21,7 @@ func TestIntegration_TTSRead(t *testing.T) {
 
 	client := newIntegrationClient(t)
 	voiceID := getenvRequiredInt(t, "VOICRAFTBD_VOICE_ID")
-	text := getenvDefault("VOICRAFTBD_TTS_TEXT", "你好，这是一段来自 voicraftbaidu SDK 集成测试的语音合成文本。")
+	text := getenvDefault("VOICRAFTBD_TTS_TEXT", "你好，这是一段来自 voicecraftbaidu SDK 集成测试的语音合成文本。")
 
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
@@ -73,7 +73,7 @@ func TestIntegration_StreamTTSRead(t *testing.T) {
 	}
 
 	client := newIntegrationClient(t)
-	text := getenvDefault("VOICRAFTBD_TTS_TEXT", "你好，这是一段来自 voicraftbaidu SDK 流式文本在线合成集成测试的语音。")
+	text := getenvDefault("VOICRAFTBD_TTS_TEXT", "你好，这是一段来自 voicecraftbaidu SDK 流式文本在线合成集成测试的语音。")
 
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
@@ -127,7 +127,7 @@ func TestIntegration_CreateVoice(t *testing.T) {
 	}
 
 	client := newIntegrationClient(t)
-	voiceName := getenvDefault("VOICRAFTBD_VOICE_NAME", fmt.Sprintf("voicraftbaidu-it-%d", time.Now().Unix()))
+	voiceName := getenvDefault("VOICRAFTBD_VOICE_NAME", fmt.Sprintf("voicecraftbaidu-it-%d", time.Now().Unix()))
 
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()

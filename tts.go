@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 import (
 	"context"
@@ -75,8 +75,8 @@ type sessionError struct {
 //
 // 使用示例：
 //
-//	session, err := client.NewTTSSession(ctx, 12345, &voicraftbaidu.TTSConfig{
-//	    MediaType: voicraftbaidu.MediaMP3,
+//	session, err := client.NewTTSSession(ctx, 12345, &voicecraftbaidu.TTSConfig{
+//	    MediaType: voicecraftbaidu.MediaMP3,
 //	    Speed:     7,
 //	})
 //	if err != nil {
@@ -91,7 +91,7 @@ func (c *Client) NewTTSSession(ctx context.Context, voiceID int, cfg *TTSConfig)
 	// 构建 WebSocket URL
 	wsURL, err := c.buildWSURL(ctx, voiceID)
 	if err != nil {
-		return nil, fmt.Errorf("voicraftbaidu: build ws url: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: build ws url: %w", err)
 	}
 
 	// 建立连接并创建 session
@@ -103,13 +103,13 @@ func (c *Client) NewTTSSession(ctx context.Context, voiceID int, cfg *TTSConfig)
 	// 发送初始化帧
 	if err := session.sendStart(cfg); err != nil {
 		_ = session.conn.Close()
-		return nil, fmt.Errorf("voicraftbaidu: send start frame: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: send start frame: %w", err)
 	}
 
 	// 等待初始化确认并启动 readLoop
 	if err := session.startReadLoop(); err != nil {
 		_ = session.conn.Close()
-		return nil, fmt.Errorf("voicraftbaidu: wait started: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: wait started: %w", err)
 	}
 
 	return session, nil
@@ -136,7 +136,7 @@ func (c *Client) dialSession(ctx context.Context, wsURL string) (*TTSSession, er
 
 	conn, _, err := dialer.DialContext(ctx, wsURL, header)
 	if err != nil {
-		return nil, fmt.Errorf("voicraftbaidu: websocket dial: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: websocket dial: %w", err)
 	}
 
 	// 服务端 Ping 由 gorilla/websocket 默认回复 Pong；此处显式设置，便于与读超时策略一并维护。
@@ -263,7 +263,7 @@ func (s *TTSSession) readLoop() {
 			if !websocket.IsCloseError(err,
 				websocket.CloseNormalClosure,
 				websocket.CloseGoingAway) {
-				s.setReadError(fmt.Errorf("voicraftbaidu: ws read: %w", err))
+				s.setReadError(fmt.Errorf("voicecraftbaidu: ws read: %w", err))
 			}
 			return
 		}
@@ -283,7 +283,7 @@ func (s *TTSSession) readLoop() {
 			// 控制帧
 			var resp wsResponse
 			if err := json.Unmarshal(data, &resp); err != nil {
-				s.setReadError(fmt.Errorf("voicraftbaidu: decode ws message: %w", err))
+				s.setReadError(fmt.Errorf("voicecraftbaidu: decode ws message: %w", err))
 				return
 			}
 
@@ -336,7 +336,7 @@ func (s *TTSSession) SendText(ctx context.Context, text string) error {
 		Payload: wsTextPayload{Text: text},
 	}
 	if err := s.conn.WriteJSON(frame); err != nil {
-		return fmt.Errorf("voicraftbaidu: send text: %w", err)
+		return fmt.Errorf("voicecraftbaidu: send text: %w", err)
 	}
 	return nil
 }
@@ -357,7 +357,7 @@ func (s *TTSSession) Finish(ctx context.Context) error {
 
 	frame := wsFinishFrame{Type: wsTypeSystemFinish}
 	if err := s.conn.WriteJSON(frame); err != nil {
-		return fmt.Errorf("voicraftbaidu: send finish: %w", err)
+		return fmt.Errorf("voicecraftbaidu: send finish: %w", err)
 	}
 
 	s.state.Store(int32(stateFinished))
@@ -403,7 +403,7 @@ func (s *TTSSession) Read() ([]byte, error) {
 // ctx 不得为 nil。
 func (s *TTSSession) ReadContext(ctx context.Context) ([]byte, error) {
 	if ctx == nil {
-		return nil, fmt.Errorf("voicraftbaidu: ReadContext: nil context")
+		return nil, fmt.Errorf("voicecraftbaidu: ReadContext: nil context")
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -455,7 +455,7 @@ func (s *TTSSession) Stream(ctx context.Context, handler func(audio []byte) erro
 				return nil // 正常结束
 			}
 			if err := handler(data); err != nil {
-				return fmt.Errorf("voicraftbaidu: stream handler: %w", err)
+				return fmt.Errorf("voicecraftbaidu: stream handler: %w", err)
 			}
 		}
 	}
@@ -532,6 +532,6 @@ func (s *TTSSession) checkState(expected sessionState) error {
 	case stateFinished:
 		return ErrSessionFinished
 	default:
-		return fmt.Errorf("voicraftbaidu: unexpected session state %d", current)
+		return fmt.Errorf("voicecraftbaidu: unexpected session state %d", current)
 	}
 }

@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 import (
 	"context"
@@ -60,7 +60,7 @@ func (c *Client) refreshToken(ctx context.Context) (string, error) {
 	// OAuth 端点用 query 参数鉴权、无请求体；用 PostRaw 取原始响应，因成功与失败是不同结构。
 	body, status, err := c.rest.PostRaw(ctx, reqURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("voicraftbaidu: token request failed: %w", err)
+		return "", fmt.Errorf("voicecraftbaidu: token request failed: %w", err)
 	}
 
 	// 检查 OAuth 错误响应
@@ -70,18 +70,18 @@ func (c *Client) refreshToken(ctx context.Context) (string, error) {
 			oauthErr.StatusCode = status
 			return "", &oauthErr
 		}
-		return "", fmt.Errorf("voicraftbaidu: token request returned status %d: %s",
+		return "", fmt.Errorf("voicecraftbaidu: token request returned status %d: %s",
 			status, string(body))
 	}
 
 	// 解析成功响应
 	var cache tokenCache
 	if err := json.Unmarshal(body, &cache); err != nil {
-		return "", fmt.Errorf("voicraftbaidu: decode token response: %w", err)
+		return "", fmt.Errorf("voicecraftbaidu: decode token response: %w", err)
 	}
 
 	if cache.AccessToken == "" {
-		return "", fmt.Errorf("voicraftbaidu: token response missing access_token")
+		return "", fmt.Errorf("voicecraftbaidu: token response missing access_token")
 	}
 
 	// 计算本地过期时间

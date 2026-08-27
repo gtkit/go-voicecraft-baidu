@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 import (
 	"net/http"
@@ -18,13 +18,13 @@ import (
 // 使用示例：
 //
 //	// 方式一：使用 client_id + client_secret（推荐，SDK 自动管理 token）
-//	client, err := voicraftbaidu.New(
-//	    voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+//	client, err := voicecraftbaidu.New(
+//	    voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 //	)
 //
 //	// 方式二：使用 API Key
-//	client, err := voicraftbaidu.New(
-//	    voicraftbaidu.WithAPIKey("your-api-key"),
+//	client, err := voicecraftbaidu.New(
+//	    voicecraftbaidu.WithAPIKey("your-api-key"),
 //	)
 type Client struct {
 	httpClient   *http.Client  // 底层 HTTP 客户端，供 WebSocket dialer 继承传输配置
@@ -51,10 +51,10 @@ type Client struct {
 //
 // 示例：
 //
-//	client, err := voicraftbaidu.New(
-//	    voicraftbaidu.WithClientCredentials(clientID, clientSecret),
-//	    voicraftbaidu.WithHTTPClient(&http.Client{Timeout: 30 * time.Second}),
-//	    voicraftbaidu.WithIdleTimeout(120),
+//	client, err := voicecraftbaidu.New(
+//	    voicecraftbaidu.WithClientCredentials(clientID, clientSecret),
+//	    voicecraftbaidu.WithHTTPClient(&http.Client{Timeout: 30 * time.Second}),
+//	    voicecraftbaidu.WithIdleTimeout(120),
 //	)
 func New(opts ...Option) (*Client, error) {
 	c := &Client{

@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 import (
 	"context"
@@ -33,11 +33,11 @@ import (
 //
 // 使用示例：
 //
-//	session, err := client.NewStreamTTSSession(ctx, "0", &voicraftbaidu.StreamTTSConfig{
+//	session, err := client.NewStreamTTSSession(ctx, "0", &voicecraftbaidu.StreamTTSConfig{
 //	    Spd: 5,                          // 语速 0-15
 //	    Pit: 5,                          // 音调 0-15
 //	    Vol: 5,                          // 音量 0-15
-//	    Aue: voicraftbaidu.AudioEncodingMP3,   // 音频格式
+//	    Aue: voicecraftbaidu.AudioEncodingMP3,   // 音频格式
 //	})
 //	if err != nil {
 //	    log.Fatal(err)
@@ -61,7 +61,7 @@ func (c *Client) NewStreamTTSSession(ctx context.Context, per string, cfg *Strea
 	// 构建 WebSocket URL
 	wsURL, err := c.buildStreamTTSWSURL(ctx, per)
 	if err != nil {
-		return nil, fmt.Errorf("voicraftbaidu: build stream tts ws url: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: build stream tts ws url: %w", err)
 	}
 
 	// 建立连接并创建 session
@@ -73,13 +73,13 @@ func (c *Client) NewStreamTTSSession(ctx context.Context, per string, cfg *Strea
 	// 发送 system.start 初始化帧
 	if err := session.sendStreamTTSStart(cfg); err != nil {
 		_ = session.conn.Close()
-		return nil, fmt.Errorf("voicraftbaidu: send stream tts start frame: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: send stream tts start frame: %w", err)
 	}
 
 	// 等待初始化确认并启动 readLoop
 	if err := session.startReadLoop(); err != nil {
 		_ = session.conn.Close()
-		return nil, fmt.Errorf("voicraftbaidu: stream tts wait started: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: stream tts wait started: %w", err)
 	}
 
 	return session, nil

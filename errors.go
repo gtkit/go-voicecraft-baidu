@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 import (
 	"errors"
@@ -23,7 +23,7 @@ type APIError struct {
 }
 
 func (e *APIError) Error() string {
-	return fmt.Sprintf("voicraftbaidu: api error (http=%d, code=%d): %s",
+	return fmt.Sprintf("voicecraftbaidu: api error (http=%d, code=%d): %s",
 		e.StatusCode, e.Code, e.Message)
 }
 
@@ -47,7 +47,7 @@ type OAuthError struct {
 }
 
 func (e *OAuthError) Error() string {
-	return fmt.Sprintf("voicraftbaidu: oauth error (http=%d, code=%s): %s",
+	return fmt.Sprintf("voicecraftbaidu: oauth error (http=%d, code=%s): %s",
 		e.StatusCode, e.ErrorCode, e.Description)
 }
 
@@ -58,7 +58,7 @@ type ValidationError struct {
 }
 
 func (e *ValidationError) Error() string {
-	return fmt.Sprintf("voicraftbaidu: validation error on field %q: %s", e.Field, e.Reason)
+	return fmt.Sprintf("voicecraftbaidu: validation error on field %q: %s", e.Field, e.Reason)
 }
 
 // WebSocketError 封装 WebSocket 通信过程中的服务端错误。
@@ -69,7 +69,7 @@ type WebSocketError struct {
 }
 
 func (e *WebSocketError) Error() string {
-	return fmt.Sprintf("voicraftbaidu: websocket error (type=%s, code=%d): %s",
+	return fmt.Sprintf("voicecraftbaidu: websocket error (type=%s, code=%d): %s",
 		e.Type, e.Code, e.Message)
 }
 
@@ -86,16 +86,16 @@ func (e *WebSocketError) Description() string {
 
 var (
 	// ErrSessionClosed 表示 TTS 会话已关闭。
-	ErrSessionClosed = errors.New("voicraftbaidu: tts session is closed")
+	ErrSessionClosed = errors.New("voicecraftbaidu: tts session is closed")
 
 	// ErrSessionFinished 表示 TTS 合成已结束（已发送 finish 帧）。
-	ErrSessionFinished = errors.New("voicraftbaidu: tts session already finished")
+	ErrSessionFinished = errors.New("voicecraftbaidu: tts session already finished")
 
 	// ErrTextTooLong 表示单次发送的文本超过 1000 字符。
-	ErrTextTooLong = errors.New("voicraftbaidu: text exceeds 1000 characters limit")
+	ErrTextTooLong = errors.New("voicecraftbaidu: text exceeds 1000 characters limit")
 
 	// ErrNoAuth 表示未配置任何鉴权方式。
-	ErrNoAuth = errors.New("voicraftbaidu: no authentication configured, use WithAPIKey or WithClientCredentials")
+	ErrNoAuth = errors.New("voicecraftbaidu: no authentication configured, use WithAPIKey or WithClientCredentials")
 )
 
 // ============================================================================
@@ -105,7 +105,7 @@ var (
 // IsAPIError 从 err 链中提取 *APIError。
 // 用法：
 //
-//	if apiErr, ok := voicraftbaidu.IsAPIError(err); ok {
+//	if apiErr, ok := voicecraftbaidu.IsAPIError(err); ok {
 //	    log.Printf("API error code: %d", apiErr.Code)
 //	}
 func IsAPIError(err error) (*APIError, bool) {

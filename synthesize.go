@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 import (
 	"context"
@@ -25,9 +25,9 @@ import (
 //
 // 使用示例：
 //
-//	audio, err := client.Synthesize(ctx, 100001, "你好，世界。", &voicraftbaidu.TTSConfig{
-//	    MediaType: voicraftbaidu.MediaMP3,
-//	    Emotion:   voicraftbaidu.EmotionHappy,
+//	audio, err := client.Synthesize(ctx, 100001, "你好，世界。", &voicecraftbaidu.TTSConfig{
+//	    MediaType: voicecraftbaidu.MediaMP3,
+//	    Emotion:   voicecraftbaidu.EmotionHappy,
 //	})
 //	if err != nil {
 //	    log.Fatal(err)
@@ -40,13 +40,13 @@ func (c *Client) Synthesize(ctx context.Context, voiceID int, text string, cfg *
 
 	fields, err := buildSynthesizeBody(voiceID, text, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("voicraftbaidu: marshal request: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: marshal request: %w", err)
 	}
 
 	// 构建鉴权 query（access_token 模式追加 query；API Key 模式经默认头鉴权）
 	authQuery, err := c.buildAuthQuery(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("voicraftbaidu: auth failed: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: auth failed: %w", err)
 	}
 
 	reqURL := c.baseURL + synthesizeEndpoint
@@ -59,7 +59,7 @@ func (c *Client) Synthesize(ctx context.Context, voiceID int, text string, cfg *
 	header, respBody, status, err := c.rest.RequestRawWithHeader(
 		ctx, http.MethodPost, reqURL, map[string]string{"Accept": "*/*"}, fields)
 	if err != nil {
-		return nil, fmt.Errorf("voicraftbaidu: request failed: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: request failed: %w", err)
 	}
 
 	if status == http.StatusOK && strings.HasPrefix(header.Get("Content-Type"), "audio") {
@@ -80,7 +80,7 @@ func (c *Client) Synthesize(ctx context.Context, voiceID int, text string, cfg *
 		}
 	}
 
-	return nil, fmt.Errorf("voicraftbaidu: unexpected response (http=%d, content-type=%q): %s",
+	return nil, fmt.Errorf("voicecraftbaidu: unexpected response (http=%d, content-type=%q): %s",
 		status, header.Get("Content-Type"), string(respBody))
 }
 

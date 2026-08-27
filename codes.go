@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 // ============================================================================
 // 返回码枚举
@@ -9,7 +9,7 @@ package voicraftbaidu
 //
 // 调用方可直接与这些常量比较，例如：
 //
-//	if apiErr, ok := voicraftbaidu.IsAPIError(err); ok && apiErr.Code == voicraftbaidu.CodeVoiceIDNotFound {
+//	if apiErr, ok := voicecraftbaidu.IsAPIError(err); ok && apiErr.Code == voicecraftbaidu.CodeVoiceIDNotFound {
 //	    // 音色不存在
 //	}
 //
@@ -130,8 +130,8 @@ var codeDescriptions = map[int]string{
 //
 // 用法：
 //
-//	if apiErr, ok := voicraftbaidu.IsAPIError(err); ok {
-//	    if desc, known := voicraftbaidu.CodeDescription(apiErr.Code); known {
+//	if apiErr, ok := voicecraftbaidu.IsAPIError(err); ok {
+//	    if desc, known := voicecraftbaidu.CodeDescription(apiErr.Code); known {
 //	        log.Printf("接口返回 %d：%s", apiErr.Code, desc)
 //	    }
 //	}

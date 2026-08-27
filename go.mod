@@ -1,4 +1,4 @@
-module github.com/gtkit/voicraft-baidu
+module github.com/gtkit/go-voicecraft-baidu
 
 go 1.27
 

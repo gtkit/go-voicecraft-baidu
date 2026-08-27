@@ -1,7 +1,7 @@
 # voicraft-baidu
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/gtkit/voicraft-baidu.svg)](https://pkg.go.dev/github.com/gtkit/voicraft-baidu)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gtkit/voicraft-baidu)](https://goreportcard.com/report/github.com/gtkit/voicraft-baidu)
+[![Go Reference](https://pkg.go.dev/badge/github.com/gtkit/go-voicecraft-baidu.svg)](https://pkg.go.dev/github.com/gtkit/go-voicecraft-baidu)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gtkit/go-voicecraft-baidu)](https://goreportcard.com/report/github.com/gtkit/go-voicecraft-baidu)
 
 百度智能云语音合成 Go SDK，提供音色创建与管理、声音复刻 TTS 和公有云流式文本在线合成能力。
 
@@ -26,7 +26,7 @@
 ## 安装
 
 ```bash
-go get github.com/gtkit/voicraft-baidu@latest
+go get github.com/gtkit/go-voicecraft-baidu@latest
 ```
 
 ## 集成测试
@@ -62,7 +62,7 @@ make integration
 ## 代码结构
 
 ```
-voicraftbaidu/
+voicecraftbaidu/
 ├── doc.go             # 包级文档（package voicraft-baidu ...）
 │
 ├── client.go          # Client 定义 + Functional Options
@@ -212,30 +212,30 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gtkit/voicraft-baidu"
+	"github.com/gtkit/go-voicecraft-baidu"
 )
 
 func main() {
 	// 方式一（推荐）：使用 client_id + client_secret
 	// SDK 自动获取和续期 access_token，无需手动管理
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials(
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials(
 			"your-client-id",     // 百度 AI 应用的 API Key
 			"your-client-secret", // 百度 AI 应用的 Secret Key
 		),
 		// 以下为可选配置：
-		voicraftbaidu.WithHTTPClient(&http.Client{
+		voicecraftbaidu.WithHTTPClient(&http.Client{
 			Timeout: 30 * time.Second, // 自定义 HTTP 超时
 		}),
-		voicraftbaidu.WithIdleTimeout(120), // WebSocket 空闲超时 120 秒
+		voicecraftbaidu.WithIdleTimeout(120), // WebSocket 空闲超时 120 秒
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// 方式二：使用 API Key（适合快速测试）
-	// client, err := voicraftbaidu.New(
-	//     voicraftbaidu.WithAPIKey("your-api-key"),
+	// client, err := voicecraftbaidu.New(
+	//     voicecraftbaidu.WithAPIKey("your-api-key"),
 	// )
 
 	_ = client
@@ -250,36 +250,36 @@ import (
 "fmt"
 "log"
 
-"github.com/gtkit/voicraft-baidu"
+"github.com/gtkit/go-voicecraft-baidu"
 )
 
-func createVoice(client *voicraftbaidu.Client) {
+func createVoice(client *voicecraftbaidu.Client) {
 ctx := context.Background()
 
 // ---- 方式一：通过音频 URL 创建 ----
-resp, err := client.CreateVoice(ctx, &voicraftbaidu.CreateVoiceRequest{
+resp, err := client.CreateVoice(ctx, &voicecraftbaidu.CreateVoiceRequest{
 VoiceName: "my-voice",             // 必填：音色名称，同一用户下不可重复
 VoiceDesc: "温柔细腻的女声",          // 可选：音色描述
 AudioURL:  "https://example.com/audio.wav", // 音频链接，5M 以内，5~20 秒
-Lang:      voicraftbaidu.LangChinese, // 可选：语种，默认 "zh"
+Lang:      voicecraftbaidu.LangChinese, // 可选：语种，默认 "zh"
 })
 
 // ---- 方式二：通过 base64 编码创建 ----
-// resp, err := client.CreateVoice(ctx, &voicraftbaidu.CreateVoiceRequest{
+// resp, err := client.CreateVoice(ctx, &voicecraftbaidu.CreateVoiceRequest{
 //     VoiceName: "my-voice",
 //     AudioFile: base64EncodedAudio, // 音频 base64 编码
-//     Lang:      voicraftbaidu.LangJapanese, // 日语音色建议 10~30 秒日语音频
+//     Lang:      voicecraftbaidu.LangJapanese, // 日语音色建议 10~30 秒日语音频
 // })
 
 if err != nil {
 // 精细化错误处理
-if apiErr, ok := voicraftbaidu.IsAPIError(err); ok {
+if apiErr, ok := voicecraftbaidu.IsAPIError(err); ok {
 // API 业务错误，如音色名重复、参数无效等
 fmt.Printf("API 错误: code=%d, message=%s\n", apiErr.Code, apiErr.Message)
-} else if oauthErr, ok := voicraftbaidu.IsOAuthError(err); ok {
+} else if oauthErr, ok := voicecraftbaidu.IsOAuthError(err); ok {
 // 鉴权失败，如 client_id/secret 错误
 fmt.Printf("鉴权错误: %s - %s\n", oauthErr.ErrorCode, oauthErr.Description)
-} else if valErr, ok := voicraftbaidu.IsValidationError(err); ok {
+} else if valErr, ok := voicecraftbaidu.IsValidationError(err); ok {
 // 参数校验失败（客户端侧）
 fmt.Printf("参数错误: 字段 %s - %s\n", valErr.Field, valErr.Reason)
 }
@@ -294,7 +294,7 @@ fmt.Printf("音色创建成功！voice_id: %d\n", resp.Data.VoiceID)
 ### 3. 音色管理（训练文本 / 列表 / 详情 / 删除）
 
 ```go
-func manageVoices(client *voicraftbaidu.Client) {
+func manageVoices(client *voicecraftbaidu.Client) {
 ctx := context.Background()
 
 // ---- 获取训练文本（用于指定文本复刻；自定义文本复刻无需调用） ----
@@ -318,7 +318,7 @@ fmt.Printf("- %d %s (%s)\n", v.VoiceID, v.VoiceName, v.Lang)
 detail, err := client.VoiceDetail(ctx, 100001)
 if err != nil {
 // 借助返回码枚举判断具体原因
-if apiErr, ok := voicraftbaidu.IsAPIError(err); ok && apiErr.Code == voicraftbaidu.CodeVoiceIDNotFound {
+if apiErr, ok := voicecraftbaidu.IsAPIError(err); ok && apiErr.Code == voicecraftbaidu.CodeVoiceIDNotFound {
 log.Fatal("音色不存在")
 }
 log.Fatal(err)
@@ -344,20 +344,20 @@ import (
 "log"
 "os"
 
-"github.com/gtkit/voicraft-baidu"
+"github.com/gtkit/go-voicecraft-baidu"
 )
 
-func synthesizeWithRead(client *voicraftbaidu.Client, voiceID int) {
+func synthesizeWithRead(client *voicecraftbaidu.Client, voiceID int) {
 ctx := context.Background()
 
 // 步骤 1：创建 TTS 会话
 // 此步骤会自动完成 WebSocket 连接建立和初始化握手
-session, err := client.NewTTSSession(ctx, voiceID, &voicraftbaidu.TTSConfig{
-MediaType: voicraftbaidu.MediaMP3,     // 输出 MP3 格式
+session, err := client.NewTTSSession(ctx, voiceID, &voicecraftbaidu.TTSConfig{
+MediaType: voicecraftbaidu.MediaMP3,     // 输出 MP3 格式
 Speed:     7,                        // 语速稍快（0-15，默认5）
 Pitch:     5,                        // 音调（0-15，默认5）
 Volume:    8,                        // 音量稍大（0-15，默认5）
-Lang:      voicraftbaidu.LangChinese,  // 中英语
+Lang:      voicecraftbaidu.LangChinese,  // 中英语
 })
 if err != nil {
 log.Fatal(err)
@@ -365,7 +365,7 @@ log.Fatal(err)
 defer session.Close() // 确保连接释放
 
 // 如果需要显式发送 0 值（例如最低音调/最慢语速），使用 setter：
-// cfg := (&voicraftbaidu.TTSConfig{MediaType: voicraftbaidu.MediaMP3}).SetPitch(0).SetSpeed(0)
+// cfg := (&voicecraftbaidu.TTSConfig{MediaType: voicecraftbaidu.MediaMP3}).SetPitch(0).SetSpeed(0)
 
 // 可选：打印 session_id，用于问题排查
 fmt.Printf("Session ID: %s\n", session.SessionID())
@@ -404,7 +404,7 @@ break // 所有音频已接收完毕
 }
 if err != nil {
 // 可能是服务端错误或连接断开
-if wsErr, ok := voicraftbaidu.IsWebSocketError(err); ok {
+if wsErr, ok := voicecraftbaidu.IsWebSocketError(err); ok {
 log.Printf("服务端错误: code=%d, msg=%s", wsErr.Code, wsErr.Message)
 }
 log.Fatal(err)
@@ -429,15 +429,15 @@ import (
 "net/http"
 "os"
 
-"github.com/gtkit/voicraft-baidu"
+"github.com/gtkit/go-voicecraft-baidu"
 )
 
 // 示例 1：直接写入文件
-func synthesizeToFile(client *voicraftbaidu.Client, voiceID int) {
+func synthesizeToFile(client *voicecraftbaidu.Client, voiceID int) {
 ctx := context.Background()
 
-session, err := client.NewTTSSession(ctx, voiceID, &voicraftbaidu.TTSConfig{
-MediaType: voicraftbaidu.MediaMP3,
+session, err := client.NewTTSSession(ctx, voiceID, &voicecraftbaidu.TTSConfig{
+MediaType: voicecraftbaidu.MediaMP3,
 })
 if err != nil {
 log.Fatal(err)
@@ -462,11 +462,11 @@ log.Fatal(err)
 }
 
 // 示例 2：HTTP 流式响应（实时播放）
-func handleTTS(w http.ResponseWriter, r *http.Request, client *voicraftbaidu.Client, voiceID int) {
+func handleTTS(w http.ResponseWriter, r *http.Request, client *voicecraftbaidu.Client, voiceID int) {
 ctx := r.Context()
 
-session, err := client.NewTTSSession(ctx, voiceID, &voicraftbaidu.TTSConfig{
-MediaType: voicraftbaidu.MediaMP3,
+session, err := client.NewTTSSession(ctx, voiceID, &voicecraftbaidu.TTSConfig{
+MediaType: voicecraftbaidu.MediaMP3,
 })
 if err != nil {
 http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -499,13 +499,13 @@ log.Printf("stream error: %v", err)
 ### 6. 方言合成
 
 ```go
-func synthesizeDialect(client *voicraftbaidu.Client, voiceID int) {
+func synthesizeDialect(client *voicecraftbaidu.Client, voiceID int) {
 ctx := context.Background()
 
-session, err := client.NewTTSSession(ctx, voiceID, &voicraftbaidu.TTSConfig{
-Lang:      voicraftbaidu.LangChinese,    // 方言必须选 "zh"
-Dialect:   voicraftbaidu.DialectSichuan,  // 四川话
-MediaType: voicraftbaidu.MediaMP3,
+session, err := client.NewTTSSession(ctx, voiceID, &voicecraftbaidu.TTSConfig{
+Lang:      voicecraftbaidu.LangChinese,    // 方言必须选 "zh"
+Dialect:   voicecraftbaidu.DialectSichuan,  // 四川话
+MediaType: voicecraftbaidu.MediaMP3,
 })
 if err != nil {
 log.Fatal(err)
@@ -513,11 +513,11 @@ log.Fatal(err)
 defer session.Close()
 
 // 支持的方言常量：
-// voicraftbaidu.DialectShanghai  — 上海话
-// voicraftbaidu.DialectHenan     — 河南话
-// voicraftbaidu.DialectSichuan   — 四川话
-// voicraftbaidu.DialectHunan     — 湖南话
-// voicraftbaidu.DialectGuizhou   — 贵州话
+// voicecraftbaidu.DialectShanghai  — 上海话
+// voicecraftbaidu.DialectHenan     — 河南话
+// voicecraftbaidu.DialectSichuan   — 四川话
+// voicecraftbaidu.DialectHunan     — 湖南话
+// voicecraftbaidu.DialectGuizhou   — 贵州话
 
 _ = session.SendText(ctx, "这是一段四川话合成测试。")
 _ = session.Finish(ctx)
@@ -531,16 +531,16 @@ _ = session.Finish(ctx)
 与声音复刻流式合成（`NewTTSSession`）使用相同的音色（`voice_id`），但通过单次 REST 请求 `Synthesize` 直接返回完整音频，适合短文本、无需边合成边播放的场景。文本不超过 500 个字符，额外支持 `Emotion` 情感参数。
 
 ```go
-func synthesizeOnce(client *voicraftbaidu.Client, voiceID int) {
+func synthesizeOnce(client *voicecraftbaidu.Client, voiceID int) {
 ctx := context.Background()
 
-audio, err := client.Synthesize(ctx, voiceID, "你好，这是非流式在线合成。", &voicraftbaidu.TTSConfig{
-MediaType: voicraftbaidu.MediaMP3,
-Emotion:   voicraftbaidu.EmotionHappy, // 情感：happy / surprise / angry / disgust（仅非流式合成支持）
+audio, err := client.Synthesize(ctx, voiceID, "你好，这是非流式在线合成。", &voicecraftbaidu.TTSConfig{
+MediaType: voicecraftbaidu.MediaMP3,
+Emotion:   voicecraftbaidu.EmotionHappy, // 情感：happy / surprise / angry / disgust（仅非流式合成支持）
 Speed:     7,
 })
 if err != nil {
-if apiErr, ok := voicraftbaidu.IsAPIError(err); ok {
+if apiErr, ok := voicecraftbaidu.IsAPIError(err); ok {
 log.Fatalf("合成失败 code=%d message=%s", apiErr.Code, apiErr.Message)
 }
 log.Fatal(err)
@@ -578,10 +578,10 @@ import (
 "log"
 "os"
 
-"github.com/gtkit/voicraft-baidu"
+"github.com/gtkit/go-voicecraft-baidu"
 )
 
-func streamTTS(client *voicraftbaidu.Client) {
+func streamTTS(client *voicecraftbaidu.Client) {
 ctx := context.Background()
 
 // per 是百度预置发音人标识
@@ -591,11 +591,11 @@ ctx := context.Background()
 //   "3" — 度逍遥（男声，情感合成）
 //   "4" — 度丫丫（女声，童声）
 //   具体发音人列表请参考百度语音合成文档
-session, err := client.NewStreamTTSSession(ctx, "0", &voicraftbaidu.StreamTTSConfig{
+session, err := client.NewStreamTTSSession(ctx, "0", &voicecraftbaidu.StreamTTSConfig{
 Spd: 5,                        // 语速 0-15，默认 5
 Pit: 5,                        // 音调 0-15，默认 5
 Vol: 5,                        // 音量 0-15（基础音库 0-9），默认 5
-Aue: voicraftbaidu.AudioEncodingMP3, // 音频格式：3=mp3, 4=pcm-16k, 5=pcm-8k, 6=wav
+Aue: voicecraftbaidu.AudioEncodingMP3, // 音频格式：3=mp3, 4=pcm-16k, 5=pcm-8k, 6=wav
 })
 if err != nil {
 log.Fatal(err)
@@ -636,17 +636,17 @@ fmt.Println("流式文本在线合成完成")
 }
 
 // 使用降采样和推模式的高级示例
-func streamTTSAdvanced(client *voicraftbaidu.Client) {
+func streamTTSAdvanced(client *voicecraftbaidu.Client) {
 ctx := context.Background()
 
 // 链式配置：设置音频格式 + 降采样到 16kHz
-cfg := (&voicraftbaidu.StreamTTSConfig{
-Aue: voicraftbaidu.AudioEncodingMP3,
+cfg := (&voicecraftbaidu.StreamTTSConfig{
+Aue: voicecraftbaidu.AudioEncodingMP3,
 Spd: 7, // 稍快语速
 }).WithSampleRate16K() // 便捷方法：设置 audio_ctrl 降采样到 16k
 
 // 如果需要显式发送 0 值，使用 setter：
-// cfg := (&voicraftbaidu.StreamTTSConfig{}).SetSpd(0).SetPit(0).SetVol(0)
+// cfg := (&voicecraftbaidu.StreamTTSConfig{}).SetSpd(0).SetPit(0).SetVol(0)
 
 session, err := client.NewStreamTTSSession(ctx, "4103", cfg)
 if err != nil {
@@ -679,24 +679,24 @@ SDK 提供了完整的错误类型体系，支持精细化错误处理：
 resp, err := client.CreateVoice(ctx, req)
 if err != nil {
 switch {
-case voicraftbaidu.IsAPIError(err) != nil:
+case voicecraftbaidu.IsAPIError(err) != nil:
 // 百度 API 业务错误
-apiErr, _ := voicraftbaidu.IsAPIError(err)
+apiErr, _ := voicecraftbaidu.IsAPIError(err)
 // 返回码已枚举为常量，可直接比较；Description() 给出中文说明
-if apiErr.Code == voicraftbaidu.CodeVoiceIDNotFound {
+if apiErr.Code == voicecraftbaidu.CodeVoiceIDNotFound {
 log.Println("音色不存在")
 }
 log.Printf("API error: http=%d, code=%d, msg=%s, desc=%s",
 apiErr.StatusCode, apiErr.Code, apiErr.Message, apiErr.Description())
 
-case voicraftbaidu.IsOAuthError(err) != nil:
+case voicecraftbaidu.IsOAuthError(err) != nil:
 // OAuth 鉴权错误（client_id/secret 无效等）
-oauthErr, _ := voicraftbaidu.IsOAuthError(err)
+oauthErr, _ := voicecraftbaidu.IsOAuthError(err)
 log.Printf("OAuth error: %s", oauthErr.Description)
 
-case voicraftbaidu.IsValidationError(err) != nil:
+case voicecraftbaidu.IsValidationError(err) != nil:
 // 客户端参数校验错误（请求发出前就拦截）
-valErr, _ := voicraftbaidu.IsValidationError(err)
+valErr, _ := voicecraftbaidu.IsValidationError(err)
 log.Printf("Validation: field=%s, reason=%s", valErr.Field, valErr.Reason)
 
 default:
@@ -712,12 +712,12 @@ log.Printf("Unexpected error: %v", err)
 import "errors"
 
 // TTS 会话相关
-errors.Is(err, voicraftbaidu.ErrSessionClosed)   // 会话已关闭
-errors.Is(err, voicraftbaidu.ErrSessionFinished)  // 已调用 Finish，不能再 SendText
-errors.Is(err, voicraftbaidu.ErrTextTooLong)      // 单次文本超过 1000 字符
+errors.Is(err, voicecraftbaidu.ErrSessionClosed)   // 会话已关闭
+errors.Is(err, voicecraftbaidu.ErrSessionFinished)  // 已调用 Finish，不能再 SendText
+errors.Is(err, voicecraftbaidu.ErrTextTooLong)      // 单次文本超过 1000 字符
 
 // 客户端配置
-errors.Is(err, voicraftbaidu.ErrNoAuth)           // 未配置鉴权方式
+errors.Is(err, voicecraftbaidu.ErrNoAuth)           // 未配置鉴权方式
 ```
 
 ## 注意事项

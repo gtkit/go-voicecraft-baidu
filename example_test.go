@@ -1,4 +1,4 @@
-package voicraftbaidu_test
+package voicecraftbaidu_test
 
 import (
 	"context"
@@ -7,14 +7,14 @@ import (
 	"log"
 	"os"
 
-	voicraftbaidu "github.com/gtkit/voicraft-baidu"
+	voicecraftbaidu "github.com/gtkit/go-voicecraft-baidu"
 )
 
 // ExampleNew_withClientCredentials 演示使用 client_id + client_secret 创建客户端。
 // 这是推荐的鉴权方式，SDK 会自动管理 access_token 的获取和续期。
 func ExampleNew_withClientCredentials() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -24,8 +24,8 @@ func ExampleNew_withClientCredentials() {
 
 // ExampleNew_withAPIKey 演示使用 API Key 创建客户端。
 func ExampleNew_withAPIKey() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithAPIKey("your-api-key"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithAPIKey("your-api-key"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -35,22 +35,22 @@ func ExampleNew_withAPIKey() {
 
 // ExampleClient_CreateVoice 演示通过音频 URL 创建音色。
 func ExampleClient_CreateVoice() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	resp, err := client.CreateVoice(context.Background(), &voicraftbaidu.CreateVoiceRequest{
+	resp, err := client.CreateVoice(context.Background(), &voicecraftbaidu.CreateVoiceRequest{
 		VoiceName: "my-voice",
 		VoiceDesc: "温柔细腻的音色",
 		AudioURL:  "https://example.com/audio.wav",
-		Lang:      voicraftbaidu.LangChinese,
+		Lang:      voicecraftbaidu.LangChinese,
 	})
 	if err != nil {
 		// 可以使用类型判断获取更详细的错误信息
-		if apiErr, ok := voicraftbaidu.IsAPIError(err); ok {
+		if apiErr, ok := voicecraftbaidu.IsAPIError(err); ok {
 			log.Fatalf("API error: code=%d, message=%s", apiErr.Code, apiErr.Message)
 		}
 		log.Fatal(err)
@@ -61,8 +61,8 @@ func ExampleClient_CreateVoice() {
 
 // ExampleClient_GetCloneText 演示获取训练文本，用于指定文本复刻。
 func ExampleClient_GetCloneText() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -79,8 +79,8 @@ func ExampleClient_GetCloneText() {
 
 // ExampleClient_ListVoices 演示分页查询已创建的音色列表。
 func ExampleClient_ListVoices() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -99,8 +99,8 @@ func ExampleClient_ListVoices() {
 
 // ExampleClient_VoiceDetail 演示查询单个音色详情。
 func ExampleClient_VoiceDetail() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -109,7 +109,7 @@ func ExampleClient_VoiceDetail() {
 	resp, err := client.VoiceDetail(context.Background(), 100001)
 	if err != nil {
 		// 通过返回码枚举判断具体原因
-		if apiErr, ok := voicraftbaidu.IsAPIError(err); ok && apiErr.Code == voicraftbaidu.CodeVoiceIDNotFound {
+		if apiErr, ok := voicecraftbaidu.IsAPIError(err); ok && apiErr.Code == voicecraftbaidu.CodeVoiceIDNotFound {
 			log.Fatal("音色不存在")
 		}
 		log.Fatal(err)
@@ -120,8 +120,8 @@ func ExampleClient_VoiceDetail() {
 
 // ExampleClient_DeleteVoice 演示删除音色。
 func ExampleClient_DeleteVoice() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -136,7 +136,7 @@ func ExampleClient_DeleteVoice() {
 
 // ExampleCodeDescription 演示将返回码翻译为中文说明。
 func ExampleCodeDescription() {
-	desc, known := voicraftbaidu.CodeDescription(voicraftbaidu.CodeTextTooLong)
+	desc, known := voicecraftbaidu.CodeDescription(voicecraftbaidu.CodeTextTooLong)
 	if known {
 		fmt.Println(desc)
 	}
@@ -145,8 +145,8 @@ func ExampleCodeDescription() {
 
 // ExampleClient_Synthesize 演示使用声音复刻非流式在线合成，一次性获取完整音频。
 func ExampleClient_Synthesize() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -155,9 +155,9 @@ func ExampleClient_Synthesize() {
 	ctx := context.Background()
 	voiceID := 100001 // 通过 CreateVoice 获取
 
-	audio, err := client.Synthesize(ctx, voiceID, "你好，这是非流式在线合成。", &voicraftbaidu.TTSConfig{
-		MediaType: voicraftbaidu.MediaMP3,
-		Emotion:   voicraftbaidu.EmotionHappy, // 情感（仅非流式合成支持）
+	audio, err := client.Synthesize(ctx, voiceID, "你好，这是非流式在线合成。", &voicecraftbaidu.TTSConfig{
+		MediaType: voicecraftbaidu.MediaMP3,
+		Emotion:   voicecraftbaidu.EmotionHappy, // 情感（仅非流式合成支持）
 		Speed:     7,
 	})
 	if err != nil {
@@ -174,9 +174,9 @@ func ExampleClient_Synthesize() {
 // ExampleClient_NewTTSSession_read 演示使用 Read（拉模式）读取合成音频。
 // 适合需要精细控制的场景：边接收边写入文件、边接收边转发。
 func ExampleClient_NewTTSSession_read() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
-		voicraftbaidu.WithIdleTimeout(120), // 自定义空闲超时
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+		voicecraftbaidu.WithIdleTimeout(120), // 自定义空闲超时
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -186,11 +186,11 @@ func ExampleClient_NewTTSSession_read() {
 	voiceID := 12345 // 通过 CreateVoice 获取
 
 	// 如果需要显式发送 0，可使用 setter：
-	// cfg := (&voicraftbaidu.TTSConfig{MediaType: voicraftbaidu.MediaMP3}).SetPitch(0).SetSpeed(0)
+	// cfg := (&voicecraftbaidu.TTSConfig{MediaType: voicecraftbaidu.MediaMP3}).SetPitch(0).SetSpeed(0)
 
 	// 创建 TTS 会话
-	session, err := client.NewTTSSession(ctx, voiceID, &voicraftbaidu.TTSConfig{
-		MediaType: voicraftbaidu.MediaMP3,
+	session, err := client.NewTTSSession(ctx, voiceID, &voicecraftbaidu.TTSConfig{
+		MediaType: voicecraftbaidu.MediaMP3,
 		Speed:     7,
 		Pitch:     5,
 		Volume:    8,
@@ -234,18 +234,18 @@ func ExampleClient_NewTTSSession_read() {
 // ExampleTTSSession_Stream 演示使用 Stream（推模式）读取合成音频。
 // 适合"接收即转发"的流水线场景：HTTP streaming、gRPC stream 等。
 func ExampleTTSSession_Stream() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ctx := context.Background()
-	session, err := client.NewTTSSession(ctx, 12345, &voicraftbaidu.TTSConfig{
-		MediaType: voicraftbaidu.MediaMP3,
-		Lang:      voicraftbaidu.LangChinese,
-		Dialect:   voicraftbaidu.DialectSichuan, // 四川话
+	session, err := client.NewTTSSession(ctx, 12345, &voicecraftbaidu.TTSConfig{
+		MediaType: voicecraftbaidu.MediaMP3,
+		Lang:      voicecraftbaidu.LangChinese,
+		Dialect:   voicecraftbaidu.DialectSichuan, // 四川话
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -273,8 +273,8 @@ func ExampleTTSSession_Stream() {
 // ExampleClient_NewStreamTTSSession_read 演示使用公有云流式文本在线合成（拉模式）。
 // 与 NewTTSSession 不同，此方法使用预置发音人而非自定义复刻音色。
 func ExampleClient_NewStreamTTSSession_read() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithClientCredentials("your-client-id", "your-client-secret"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -283,11 +283,11 @@ func ExampleClient_NewStreamTTSSession_read() {
 	ctx := context.Background()
 
 	// per 是发音人标识，如 "0"=度小美, "1"=度小宇 等
-	session, err := client.NewStreamTTSSession(ctx, "0", &voicraftbaidu.StreamTTSConfig{
-		Spd: 5,                              // 语速 0-15，默认 5
-		Pit: 5,                              // 音调 0-15，默认 5
-		Vol: 5,                              // 音量 0-15，默认 5
-		Aue: voicraftbaidu.AudioEncodingMP3, // 音频格式：3=mp3, 4=pcm-16k, 5=pcm-8k, 6=wav
+	session, err := client.NewStreamTTSSession(ctx, "0", &voicecraftbaidu.StreamTTSConfig{
+		Spd: 5,                                // 语速 0-15，默认 5
+		Pit: 5,                                // 音调 0-15，默认 5
+		Vol: 5,                                // 音量 0-15，默认 5
+		Aue: voicecraftbaidu.AudioEncodingMP3, // 音频格式：3=mp3, 4=pcm-16k, 5=pcm-8k, 6=wav
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -328,8 +328,8 @@ func ExampleClient_NewStreamTTSSession_read() {
 
 // ExampleClient_NewStreamTTSSession_stream 演示使用公有云流式文本在线合成（推模式）。
 func ExampleClient_NewStreamTTSSession_stream() {
-	client, err := voicraftbaidu.New(
-		voicraftbaidu.WithAPIKey("your-api-key"),
+	client, err := voicecraftbaidu.New(
+		voicecraftbaidu.WithAPIKey("your-api-key"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -338,8 +338,8 @@ func ExampleClient_NewStreamTTSSession_stream() {
 	ctx := context.Background()
 
 	// 使用降采样到 16kHz 的配置
-	cfg := (&voicraftbaidu.StreamTTSConfig{
-		Aue: voicraftbaidu.AudioEncodingMP3,
+	cfg := (&voicecraftbaidu.StreamTTSConfig{
+		Aue: voicecraftbaidu.AudioEncodingMP3,
 		Spd: 7, // 稍快语速
 	}).WithSampleRate16K() // 降采样到 16kHz
 

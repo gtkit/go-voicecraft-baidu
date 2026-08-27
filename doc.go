@@ -10,4 +10,4 @@
 // 接口返回码统一枚举于 codes.go，可通过 CodeDescription 获取中文说明。
 //
 // 鉴权方式支持 access_token（OAuth）和 API Key 两种模式。
-package voicraftbaidu
+package voicecraftbaidu

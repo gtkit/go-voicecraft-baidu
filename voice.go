@@ -1,4 +1,4 @@
-package voicraftbaidu
+package voicecraftbaidu
 
 import (
 	"context"
@@ -22,11 +22,11 @@ import (
 //
 // 使用示例：
 //
-//	resp, err := client.CreateVoice(ctx, &voicraftbaidu.CreateVoiceRequest{
+//	resp, err := client.CreateVoice(ctx, &voicecraftbaidu.CreateVoiceRequest{
 //	    VoiceName: "my-voice",
 //	    VoiceDesc: "温柔细腻的音色",
 //	    AudioURL:  "https://example.com/audio.wav",
-//	    Lang:      voicraftbaidu.LangChinese,
+//	    Lang:      voicecraftbaidu.LangChinese,
 //	})
 //	if err != nil {
 //	    log.Fatal(err)
@@ -41,7 +41,7 @@ func (c *Client) CreateVoice(ctx context.Context, req *CreateVoiceRequest) (*Cre
 	// 构建鉴权 query（access_token 模式追加 query；API Key 模式经默认头鉴权）
 	authQuery, err := c.buildAuthQuery(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("voicraftbaidu: auth failed: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: auth failed: %w", err)
 	}
 
 	reqURL := c.baseURL + createVoiceEndpoint
@@ -52,7 +52,7 @@ func (c *Client) CreateVoice(ctx context.Context, req *CreateVoiceRequest) (*Cre
 	var resp CreateVoiceResponse
 	status, err := c.rest.PostJSON(ctx, reqURL, req, &resp)
 	if err != nil {
-		return nil, fmt.Errorf("voicraftbaidu: request failed: %w", err)
+		return nil, fmt.Errorf("voicecraftbaidu: request failed: %w", err)
 	}
 
 	// 业务层面错误（百度以 HTTP 200 + status != 0 表达）
@@ -135,7 +135,7 @@ func (c *Client) DeleteVoice(ctx context.Context, voiceID int) error {
 func (c *Client) postClone(ctx context.Context, endpoint string, reqBody any, out cloneResult) error {
 	authQuery, err := c.buildAuthQuery(ctx)
 	if err != nil {
-		return fmt.Errorf("voicraftbaidu: auth failed: %w", err)
+		return fmt.Errorf("voicecraftbaidu: auth failed: %w", err)
 	}
 
 	reqURL := c.baseURL + endpoint
@@ -145,7 +145,7 @@ func (c *Client) postClone(ctx context.Context, endpoint string, reqBody any, ou
 
 	status, err := c.rest.PostJSON(ctx, reqURL, reqBody, out)
 	if err != nil {
-		return fmt.Errorf("voicraftbaidu: request failed: %w", err)
+		return fmt.Errorf("voicecraftbaidu: request failed: %w", err)
 	}
 
 	// 业务层面错误（百度以 HTTP 200 + status != 0 表达）
