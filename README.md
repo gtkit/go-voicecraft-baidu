@@ -1,4 +1,4 @@
-# voicraft-baidu
+# go-voicecraft-baidu
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/gtkit/go-voicecraft-baidu.svg)](https://pkg.go.dev/github.com/gtkit/go-voicecraft-baidu)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gtkit/go-voicecraft-baidu)](https://goreportcard.com/report/github.com/gtkit/go-voicecraft-baidu)
@@ -34,36 +34,36 @@ go get github.com/gtkit/go-voicecraft-baidu@latest
 默认 `go test ./...` 不会访问百度真实服务。要执行端到端集成验证，设置环境变量后运行：
 
 ```bash
-VOICRAFTBD_RUN_INTEGRATION=1 \
-VOICRAFTBD_CLIENT_ID=your-client-id \
-VOICRAFTBD_CLIENT_SECRET=your-client-secret \
-VOICRAFTBD_VOICE_ID=12345 \
+VOICECRAFTBD_RUN_INTEGRATION=1 \
+VOICECRAFTBD_CLIENT_ID=your-client-id \
+VOICECRAFTBD_CLIENT_SECRET=your-client-secret \
+VOICECRAFTBD_VOICE_ID=12345 \
 /usr/local/go/bin/go test -v -run '^TestIntegration_' ./...
 ```
 
 或使用 Makefile：
 
 ```bash
-VOICRAFTBD_CLIENT_ID=your-client-id \
-VOICRAFTBD_CLIENT_SECRET=your-client-secret \
-VOICRAFTBD_VOICE_ID=12345 \
+VOICECRAFTBD_CLIENT_ID=your-client-id \
+VOICECRAFTBD_CLIENT_SECRET=your-client-secret \
+VOICECRAFTBD_VOICE_ID=12345 \
 make integration
 ```
 
 可选变量：
 
-- `VOICRAFTBD_AUTH_MODE=apikey`：改用 API Key 模式，并提供 `VOICRAFTBD_API_KEY`
-- `VOICRAFTBD_BASE_URL`：覆盖默认百度域名，便于私有化/代理环境
-- `VOICRAFTBD_TTS_TEXT`：覆盖默认 TTS 测试文本
-- `VOICRAFTBD_AUDIO_URL`：提供训练音频 URL 后，额外执行 `CreateVoice` 集成测试
-- `VOICRAFTBD_VOICE_NAME`：覆盖创建音色时使用的名称
-- `VOICRAFTBD_LANG`：创建音色时的语种，默认 `zh`
+- `VOICECRAFTBD_AUTH_MODE=apikey`：改用 API Key 模式，并提供 `VOICECRAFTBD_API_KEY`
+- `VOICECRAFTBD_BASE_URL`：覆盖默认百度域名，便于私有化/代理环境
+- `VOICECRAFTBD_TTS_TEXT`：覆盖默认 TTS 测试文本
+- `VOICECRAFTBD_AUDIO_URL`：提供训练音频 URL 后，额外执行 `CreateVoice` 集成测试
+- `VOICECRAFTBD_VOICE_NAME`：覆盖创建音色时使用的名称
+- `VOICECRAFTBD_LANG`：创建音色时的语种，默认 `zh`
 
 ## 代码结构
 
 ```
-voicecraftbaidu/
-├── doc.go             # 包级文档（package voicraft-baidu ...）
+go-voicecraft-baidu/
+├── doc.go             # 包级文档（Package voicecraftbaidu ...）
 │
 ├── client.go          # Client 定义 + Functional Options
 │                      # - New() 构造函数，创建后不可变（immutable）
@@ -212,7 +212,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gtkit/go-voicecraft-baidu"
+	voicecraftbaidu "github.com/gtkit/go-voicecraft-baidu"
 )
 
 func main() {
@@ -250,7 +250,7 @@ import (
 "fmt"
 "log"
 
-"github.com/gtkit/go-voicecraft-baidu"
+voicecraftbaidu "github.com/gtkit/go-voicecraft-baidu"
 )
 
 func createVoice(client *voicecraftbaidu.Client) {
@@ -344,7 +344,7 @@ import (
 "log"
 "os"
 
-"github.com/gtkit/go-voicecraft-baidu"
+voicecraftbaidu "github.com/gtkit/go-voicecraft-baidu"
 )
 
 func synthesizeWithRead(client *voicecraftbaidu.Client, voiceID int) {
@@ -429,7 +429,7 @@ import (
 "net/http"
 "os"
 
-"github.com/gtkit/go-voicecraft-baidu"
+voicecraftbaidu "github.com/gtkit/go-voicecraft-baidu"
 )
 
 // 示例 1：直接写入文件
@@ -578,7 +578,7 @@ import (
 "log"
 "os"
 
-"github.com/gtkit/go-voicecraft-baidu"
+voicecraftbaidu "github.com/gtkit/go-voicecraft-baidu"
 )
 
 func streamTTS(client *voicecraftbaidu.Client) {

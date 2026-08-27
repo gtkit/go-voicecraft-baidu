@@ -1,4 +1,4 @@
-// package voicraft-baidu 提供百度智能云大模型声音复刻 API 的 Go SDK。
+// Package voicecraftbaidu 提供百度智能云大模型声音复刻 API 的 Go SDK。
 //
 // 支持以下核心能力：
 //   - 创建音色（REST API）：上传音频创建自定义音色

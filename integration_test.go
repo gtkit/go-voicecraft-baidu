@@ -15,13 +15,13 @@ import (
 func TestIntegration_TTSRead(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv("VOICRAFTBD_RUN_INTEGRATION") != "1" {
-		t.Skip("set VOICRAFTBD_RUN_INTEGRATION=1 to run integration tests")
+	if os.Getenv("VOICECRAFTBD_RUN_INTEGRATION") != "1" {
+		t.Skip("set VOICECRAFTBD_RUN_INTEGRATION=1 to run integration tests")
 	}
 
 	client := newIntegrationClient(t)
-	voiceID := getenvRequiredInt(t, "VOICRAFTBD_VOICE_ID")
-	text := getenvDefault("VOICRAFTBD_TTS_TEXT", "你好，这是一段来自 voicecraftbaidu SDK 集成测试的语音合成文本。")
+	voiceID := getenvRequiredInt(t, "VOICECRAFTBD_VOICE_ID")
+	text := getenvDefault("VOICECRAFTBD_TTS_TEXT", "你好，这是一段来自 voicecraftbaidu SDK 集成测试的语音合成文本。")
 
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
@@ -63,17 +63,17 @@ func TestIntegration_TTSRead(t *testing.T) {
 func TestIntegration_StreamTTSRead(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv("VOICRAFTBD_RUN_INTEGRATION") != "1" {
-		t.Skip("set VOICRAFTBD_RUN_INTEGRATION=1 to run integration tests")
+	if os.Getenv("VOICECRAFTBD_RUN_INTEGRATION") != "1" {
+		t.Skip("set VOICECRAFTBD_RUN_INTEGRATION=1 to run integration tests")
 	}
 
-	per := os.Getenv("VOICRAFTBD_STREAM_TTS_PER")
+	per := os.Getenv("VOICECRAFTBD_STREAM_TTS_PER")
 	if per == "" {
-		t.Skip("set VOICRAFTBD_STREAM_TTS_PER to run stream TTS integration test (e.g. 0)")
+		t.Skip("set VOICECRAFTBD_STREAM_TTS_PER to run stream TTS integration test (e.g. 0)")
 	}
 
 	client := newIntegrationClient(t)
-	text := getenvDefault("VOICRAFTBD_TTS_TEXT", "你好，这是一段来自 voicecraftbaidu SDK 流式文本在线合成集成测试的语音。")
+	text := getenvDefault("VOICECRAFTBD_TTS_TEXT", "你好，这是一段来自 voicecraftbaidu SDK 流式文本在线合成集成测试的语音。")
 
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
@@ -117,17 +117,17 @@ func TestIntegration_StreamTTSRead(t *testing.T) {
 func TestIntegration_CreateVoice(t *testing.T) {
 	t.Parallel()
 
-	if os.Getenv("VOICRAFTBD_RUN_INTEGRATION") != "1" {
-		t.Skip("set VOICRAFTBD_RUN_INTEGRATION=1 to run integration tests")
+	if os.Getenv("VOICECRAFTBD_RUN_INTEGRATION") != "1" {
+		t.Skip("set VOICECRAFTBD_RUN_INTEGRATION=1 to run integration tests")
 	}
 
-	audioURL := os.Getenv("VOICRAFTBD_AUDIO_URL")
+	audioURL := os.Getenv("VOICECRAFTBD_AUDIO_URL")
 	if audioURL == "" {
-		t.Skip("set VOICRAFTBD_AUDIO_URL to run CreateVoice integration test")
+		t.Skip("set VOICECRAFTBD_AUDIO_URL to run CreateVoice integration test")
 	}
 
 	client := newIntegrationClient(t)
-	voiceName := getenvDefault("VOICRAFTBD_VOICE_NAME", fmt.Sprintf("voicecraftbaidu-it-%d", time.Now().Unix()))
+	voiceName := getenvDefault("VOICECRAFTBD_VOICE_NAME", fmt.Sprintf("voicecraftbaidu-it-%d", time.Now().Unix()))
 
 	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
@@ -135,7 +135,7 @@ func TestIntegration_CreateVoice(t *testing.T) {
 	resp, err := client.CreateVoice(ctx, &CreateVoiceRequest{
 		VoiceName: voiceName,
 		AudioURL:  audioURL,
-		Lang:      getenvDefault("VOICRAFTBD_LANG", LangChinese),
+		Lang:      getenvDefault("VOICECRAFTBD_LANG", LangChinese),
 	})
 	if err != nil {
 		t.Fatalf("CreateVoice: %v", err)
@@ -149,13 +149,13 @@ func TestIntegration_CreateVoice(t *testing.T) {
 func newIntegrationClient(t *testing.T) *Client {
 	t.Helper()
 
-	baseURL := getenvDefault("VOICRAFTBD_BASE_URL", defaultBaseURL)
+	baseURL := getenvDefault("VOICECRAFTBD_BASE_URL", defaultBaseURL)
 	timeout := 30 * time.Second
 
-	switch strings.ToLower(os.Getenv("VOICRAFTBD_AUTH_MODE")) {
+	switch strings.ToLower(os.Getenv("VOICECRAFTBD_AUTH_MODE")) {
 	case "", "credentials", "oauth":
-		clientID := getenvRequired(t, "VOICRAFTBD_CLIENT_ID")
-		clientSecret := getenvRequired(t, "VOICRAFTBD_CLIENT_SECRET")
+		clientID := getenvRequired(t, "VOICECRAFTBD_CLIENT_ID")
+		clientSecret := getenvRequired(t, "VOICECRAFTBD_CLIENT_SECRET")
 		client, err := New(
 			WithClientCredentials(clientID, clientSecret),
 			WithBaseURL(baseURL),
@@ -166,7 +166,7 @@ func newIntegrationClient(t *testing.T) *Client {
 		}
 		return client
 	case "apikey", "api_key":
-		apiKey := getenvRequired(t, "VOICRAFTBD_API_KEY")
+		apiKey := getenvRequired(t, "VOICECRAFTBD_API_KEY")
 		client, err := New(
 			WithAPIKey(apiKey),
 			WithBaseURL(baseURL),
@@ -177,7 +177,7 @@ func newIntegrationClient(t *testing.T) *Client {
 		}
 		return client
 	default:
-		t.Fatalf("unsupported VOICRAFTBD_AUTH_MODE=%q", os.Getenv("VOICRAFTBD_AUTH_MODE"))
+		t.Fatalf("unsupported VOICECRAFTBD_AUTH_MODE=%q", os.Getenv("VOICECRAFTBD_AUTH_MODE"))
 		return nil
 	}
 }
