@@ -16,6 +16,7 @@
 - **返回码枚举（新）**：全部业务码与协议码收录为常量，`CodeDescription` 提供中文说明
 - **双鉴权模式**：支持 OAuth access_token 和 API Key 两种鉴权方式
 - **自动 Token 管理**：singleflight 防并发刷新 + atomic 无锁缓存读取
+- **网关中转**：`WithBaseURL` 同时作用于 REST 与 WebSocket，支持 http 基址与路径前缀，握手失败带 HTTP 状态码
 - **多语种/方言**：中英语、日语、河南话、上海话、四川话、湖南话、贵州话
 - **生产级质量**：完善的错误类型体系、context 传播、并发安全、资源泄漏防护
 
@@ -69,6 +70,7 @@ go-voicecraft-baidu/
 │                      # - New() 构造函数，创建后不可变（immutable）
 │                      # - WithHTTPClient / WithAPIKey / WithClientCredentials 等选项
 │                      # - WithBaseURL / WithIdleTimeout 可选配置
+│                      # - normalizeBaseURL(): New 中校验并规范化基址
 │
 ├── token.go           # OAuth Token 自动管理
 │                      # - getAccessToken(): atomic 读缓存 → singleflight 去重刷新
@@ -118,6 +120,7 @@ go-voicecraft-baidu/
 │                      # - OAuthError: OAuth 鉴权错误
 │                      # - ValidationError: 客户端参数校验错误
 │                      # - WebSocketError: WebSocket 通信错误
+│                      # - HandshakeError: WebSocket 握手失败（含 HTTP 状态码）
 │                      # - 哨兵错误: ErrSessionClosed / ErrSessionFinished / ErrTextTooLong / ErrNoAuth
 │                      # - IsAPIError() / IsOAuthError() 等辅助函数（Go 1.26 errors.AsType）
 │
@@ -241,6 +244,21 @@ func main() {
 	_ = client
 }
 ```
+
+#### 自定义基址（经网关中转）
+
+`WithBaseURL` 指定的基址同时用于 REST 与 WebSocket。经网关中转时，用网关签发的 Key 走 API Key 模式，SDK 以 `Authorization: Bearer <Key>` 透传：
+
+```go
+client, err := voicecraftbaidu.New(
+	voicecraftbaidu.WithAPIKey("gateway-key"),
+	voicecraftbaidu.WithBaseURL("https://gw.example.com/baidu"),
+)
+```
+
+- 接受 `http`、`https`、`ws`、`wss` 四种 scheme，可带路径前缀；基址的 query、fragment、userinfo 与末尾斜杠被丢弃。
+- WebSocket 在 `http` 基址下走 `ws://`，在 `https` 基址下走 `wss://`，地址为「基址（含前缀）+ 百度路径」。上例的流式文本合成地址为 `wss://gw.example.com/baidu/ws/2.0/speech/publiccloudspeech/v1/tts?per=...`。
+- 基址 scheme 不受支持或缺少主机名时，`New` 返回 `*ValidationError`（`Field` 为 `base_url`）。
 
 ### 2. 创建音色
 
@@ -705,6 +723,21 @@ log.Printf("Unexpected error: %v", err)
 }
 }
 ```
+
+### WebSocket 握手失败
+
+`NewTTSSession` 与 `NewStreamTTSSession` 握手失败时返回 `*HandshakeError`：
+
+```go
+session, err := client.NewStreamTTSSession(ctx, "0", cfg)
+if hsErr, ok := errors.AsType[*voicecraftbaidu.HandshakeError](err); ok {
+	// StatusCode 为握手响应的 HTTP 状态码（如网关鉴权失败的 401、限流的 429）；
+	// 连接未建立（DNS、TCP、TLS 失败或超时）时为 0，底层错误可用 errors.Is 判断。
+	log.Printf("handshake to %s failed: status=%d", hsErr.URL, hsErr.StatusCode)
+}
+```
+
+`URL` 为握手目标地址，不含查询串，`access_token` 不会出现在错误中。
 
 ### 哨兵错误
 

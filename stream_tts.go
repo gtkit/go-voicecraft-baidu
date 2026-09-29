@@ -87,30 +87,10 @@ func (c *Client) NewStreamTTSSession(ctx context.Context, per string, cfg *Strea
 
 // buildStreamTTSWSURL 构建公有云流式 TTS 的 WebSocket URL。
 //
-// URL 格式：wss://aip.baidubce.com/ws/2.0/speech/publiccloudspeech/v1/tts?access_token=xxx&per=xxx
-// 或（API Key 模式）：wss://aip.baidubce.com/ws/2.0/speech/publiccloudspeech/v1/tts?per=xxx
+// 默认基址下为 wss://aip.baidubce.com/ws/2.0/speech/publiccloudspeech/v1/tts?per=xxx，
+// AuthAccessToken 模式另带 access_token。
 func (c *Client) buildStreamTTSWSURL(ctx context.Context, per string) (string, error) {
-	u, err := url.Parse(c.baseURL)
-	if err != nil {
-		return "", fmt.Errorf("parse base url: %w", err)
-	}
-	u.Scheme = "wss"
-	u.Path = streamTTSWSEndpoint
-
-	q := u.Query()
-	q.Set("per", per)
-
-	// 鉴权参数
-	if c.authMode == AuthAccessToken {
-		token, err := c.getAccessToken(ctx)
-		if err != nil {
-			return "", err
-		}
-		q.Set("access_token", token)
-	}
-
-	u.RawQuery = q.Encode()
-	return u.String(), nil
+	return c.wsURL(ctx, streamTTSWSEndpoint, url.Values{"per": {per}})
 }
 
 // sendStreamTTSStart 发送公有云流式 TTS 的 system.start 初始化帧。

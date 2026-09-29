@@ -80,6 +80,27 @@ func (e *WebSocketError) Description() string {
 	return desc
 }
 
+// HandshakeError 表示 WebSocket 握手失败。
+//
+// 服务端以 HTTP 响应拒绝升级时（如网关鉴权失败返回 401、限流返回 429），StatusCode 为该状态码；
+// 未收到响应（DNS、TCP、TLS 失败或超时）时为 0。可用 errors.AsType[*HandshakeError] 提取，
+// errors.Is 可穿透到底层错误（如 context.DeadlineExceeded）。
+type HandshakeError struct {
+	StatusCode int    // 握手响应的 HTTP 状态码，无响应时为 0
+	URL        string // 握手目标地址，不含查询串
+	cause      error
+}
+
+func (e *HandshakeError) Error() string {
+	if e.StatusCode != 0 {
+		return fmt.Sprintf("voicecraftbaidu: websocket handshake to %s failed with HTTP %d: %v", e.URL, e.StatusCode, e.cause)
+	}
+	return fmt.Sprintf("voicecraftbaidu: websocket handshake to %s failed: %v", e.URL, e.cause)
+}
+
+// Unwrap 返回底层的握手错误。
+func (e *HandshakeError) Unwrap() error { return e.cause }
+
 // ============================================================================
 // 哨兵错误
 // ============================================================================

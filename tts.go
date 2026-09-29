@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -134,9 +135,16 @@ func (c *Client) dialSession(ctx context.Context, wsURL string) (*TTSSession, er
 		dialer.TLSClientConfig = transport.TLSClientConfig
 	}
 
-	conn, _, err := dialer.DialContext(ctx, wsURL, header)
+	// gorilla/websocket 已缓冲握手响应体，无需关闭。
+	conn, resp, err := dialer.DialContext(ctx, wsURL, header)
 	if err != nil {
-		return nil, fmt.Errorf("voicecraftbaidu: websocket dial: %w", err)
+		// 截掉查询串：AuthAccessToken 模式下 access_token 在其中。
+		target, _, _ := strings.Cut(wsURL, "?")
+		hsErr := &HandshakeError{URL: target, cause: err}
+		if resp != nil {
+			hsErr.StatusCode = resp.StatusCode
+		}
+		return nil, hsErr
 	}
 
 	// 服务端 Ping 由 gorilla/websocket 默认回复 Pong；此处显式设置，便于与读超时策略一并维护。
@@ -173,25 +181,18 @@ func (s *TTSSession) startReadLoop() error {
 	return nil
 }
 
-// buildWSURL 构建带鉴权参数的 WebSocket URL。
+// buildWSURL 构建声音复刻 TTS 的 WebSocket URL。
 func (c *Client) buildWSURL(ctx context.Context, voiceID int) (string, error) {
-	// 将 https:// 替换为 wss://
-	baseURL := c.baseURL
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return "", fmt.Errorf("parse base url: %w", err)
-	}
-	u.Scheme = "wss"
-	u.Path = ttsWSEndpoint
-
-	q := u.Query()
-	q.Set("voice_id", strconv.Itoa(voiceID))
-
+	q := url.Values{"voice_id": {strconv.Itoa(voiceID)}}
 	if c.idleTimeout != defaultIdleTimeout {
 		q.Set("idle_timeout", strconv.Itoa(c.idleTimeout))
 	}
+	return c.wsURL(ctx, ttsWSEndpoint, q)
+}
 
-	// 鉴权参数
+// wsURL 以基址拼出 WebSocket 地址，AuthAccessToken 模式下追加 access_token。
+// 基址已在 New 中规范化为 http(s)://host[/prefix]，前缀 "http" 换成 "ws" 即得 ws 或 wss，路径前缀随之保留。
+func (c *Client) wsURL(ctx context.Context, endpoint string, q url.Values) (string, error) {
 	if c.authMode == AuthAccessToken {
 		token, err := c.getAccessToken(ctx)
 		if err != nil {
@@ -199,9 +200,7 @@ func (c *Client) buildWSURL(ctx context.Context, voiceID int) (string, error) {
 		}
 		q.Set("access_token", token)
 	}
-
-	u.RawQuery = q.Encode()
-	return u.String(), nil
+	return "ws" + strings.TrimPrefix(c.baseURL, "http") + endpoint + "?" + q.Encode(), nil
 }
 
 // sendStart 发送 system.start 初始化帧。

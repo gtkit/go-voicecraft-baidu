@@ -1,7 +1,9 @@
 package voicecraftbaidu
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -47,7 +49,7 @@ type Client struct {
 // New 创建一个新的 Client 实例。
 //
 // 必须通过 WithClientCredentials 或 WithAPIKey 配置鉴权方式，
-// 否则返回 ErrNoAuth。
+// 否则返回 ErrNoAuth；WithBaseURL 传入的基址非法时返回 *ValidationError（Field 为 "base_url"）。
 //
 // 示例：
 //
@@ -71,6 +73,12 @@ func New(opts ...Option) (*Client, error) {
 	if c.apiKey == "" && (c.clientID == "" || c.clientSecret == "") {
 		return nil, ErrNoAuth
 	}
+
+	baseURL, err := normalizeBaseURL(c.baseURL)
+	if err != nil {
+		return nil, err
+	}
+	c.baseURL = baseURL
 
 	// 确定鉴权模式
 	if c.apiKey != "" {
@@ -137,16 +145,43 @@ func WithClientCredentials(clientID, clientSecret string) Option {
 	}
 }
 
-// WithBaseURL 自定义 API 基础地址。
-// 默认值：https://aip.baidubce.com
+// WithBaseURL 自定义 API 基础地址，REST 与 WebSocket 共用。
+// 默认值：https://aip.baidubce.com；传空字符串保留默认值。
 //
-// 主要用于测试环境或私有化部署。
+// 用于经网关中转、测试环境或私有化部署。接受 http、https、ws、wss 四种 scheme，
+// 可带路径前缀（如 https://gw.example.com/baidu）；WebSocket 在 http 基址下走 ws，
+// 在 https 基址下走 wss。基址的 query、fragment、userinfo 与末尾斜杠在 New 中被丢弃。
 func WithBaseURL(url string) Option {
 	return func(c *Client) {
 		if url != "" {
 			c.baseURL = url
 		}
 	}
+}
+
+// normalizeBaseURL 校验并规范化基址，返回形如 http(s)://host[/prefix] 的地址，末尾不带斜杠。
+// ws 与 wss 分别改写为 http 与 https，WebSocket 地址再由 wsURL 换回。
+func normalizeBaseURL(raw string) (string, error) {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return "", &ValidationError{Field: "base_url", Reason: fmt.Sprintf("parse failed: %v", err)}
+	}
+	switch u.Scheme {
+	case "http", "https":
+	case "ws":
+		u.Scheme = "http"
+	case "wss":
+		u.Scheme = "https"
+	default:
+		return "", &ValidationError{Field: "base_url", Reason: fmt.Sprintf("unsupported scheme %q, want http, https, ws or wss", u.Scheme)}
+	}
+	if u.Host == "" {
+		return "", &ValidationError{Field: "base_url", Reason: "host is required"}
+	}
+	// query 由各接口自行拼装；去掉全部末尾斜杠，避免与以 "/" 开头的端点拼出 "//"。
+	u.RawQuery, u.Fragment, u.User = "", "", nil
+	u.Path = strings.TrimRight(u.Path, "/")
+	return u.String(), nil
 }
 
 // WithIdleTimeout 设置 WebSocket 连接的空闲超时时间（秒）。
