@@ -153,13 +153,7 @@ func (c *Client) dialSession(ctx context.Context, wsURL string) (*TTSSession, er
 		return conn.WriteControl(websocket.PongMessage, []byte(appData), deadline)
 	})
 
-	readIdle := time.Duration(c.idleTimeout) * time.Second
-	if readIdle < minWSReadIdle {
-		readIdle = minWSReadIdle
-	}
-	if readIdle > maxWSReadIdle {
-		readIdle = maxWSReadIdle
-	}
+	readIdle := min(max(time.Duration(c.idleTimeout)*time.Second, minWSReadIdle), maxWSReadIdle)
 
 	return &TTSSession{
 		conn:     conn,
