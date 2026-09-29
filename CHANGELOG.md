@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [v1.1.0] - 2026-09-29
+
 > ⚠ 破坏性变更（fail-closed）：`New` 开始校验 `WithBaseURL` 传入的基址，scheme 不是 http / https / ws / wss 或缺少主机名时返回 `*ValidationError`（`Field` 为 `base_url`）；WebSocket 握手失败的错误类型改为 `*HandshakeError`。
 >
 > 迁移：
